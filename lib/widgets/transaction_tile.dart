@@ -29,6 +29,8 @@ class TransactionTile extends StatelessWidget {
       leading: CategoryAvatar(category: category),
       title: Text(
         category.name,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
         style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
       ),
       subtitle: Text(

@@ -207,8 +207,8 @@ class _BalanceCard extends StatelessWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  scheme.primary,
-                  scheme.primary.withValues(alpha: 0.88),
+                  AppTheme.accentIndigo,
+                  AppTheme.infoBlue.withValues(alpha: 0.88),
                 ],
               ),
             ),

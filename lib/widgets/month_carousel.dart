@@ -65,7 +65,9 @@ class _MonthCarouselState extends State<MonthCarousel> {
     DateTime monthAt(int index) =>
         DateTime(_today.year, _today.month + (index - _center));
 
-    return Container(
+    return GestureDetector(
+      onTap: _openPicker,
+      child: Container(
       height: 58,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
@@ -139,7 +141,102 @@ class _MonthCarouselState extends State<MonthCarousel> {
             );
           },
         ),
+        ),
       ),
+  );
+  }
+
+  Future<void> _openPicker() async {
+    final scheme = Theme.of(context).colorScheme;
+    final now = DateTime.now();
+    DateTime? year = widget.selected;
+
+    final picked = await showDialog<(DateTime, int)>(
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (dialogContext, setDialogState) {
+            return AlertDialog(
+              title: Text(
+                DateFormat('yyyy').format(year!),
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 18),
+              ),
+              content: SizedBox(
+                width: 260,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            setDialogState(
+                              () => year = DateTime(year!.year - 1, year!.month),
+                            );
+                          },
+                          icon: const Icon(Icons.chevron_left),
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            setDialogState(
+                              () => year = DateTime(year!.year + 1, year!.month),
+                            );
+                          },
+                          icon: const Icon(Icons.chevron_right),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    GridView.count(
+                      crossAxisCount: 3,
+                      shrinkWrap: true,
+                      mainAxisSpacing: 8,
+                      crossAxisSpacing: 8,
+                      children: List.generate(12, (i) {
+                        final monthNum = i + 1;
+                        final isCurrent = year!.year == now.year &&
+                            monthNum == now.month;
+                        return InkWell(
+                          borderRadius: BorderRadius.circular(10),
+                          onTap: () =>
+                              Navigator.of(dialogContext).pop((year!, monthNum)),
+                          child: Container(
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: isCurrent
+                                  ? scheme.primary.withValues(alpha: 0.15)
+                                  : Colors.transparent,
+                            ),
+                            child: Text(
+                              DateFormat('MMM').format(
+                                DateTime(year!.year, monthNum),
+                              ),
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: isCurrent
+                                    ? scheme.primary
+                                    : Theme.of(context).colorScheme.onSurface,
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
+
+    if (picked != null) {
+      widget.onSelected(DateTime(picked.$1.year, picked.$2));
+    }
   }
 }
