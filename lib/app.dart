@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'screens/shell_screen.dart';
 import 'providers/app_state.dart';
 import 'theme.dart';
+import 'widgets/app_background.dart';
 
 class App extends StatefulWidget {
   const App({super.key});
@@ -50,22 +51,29 @@ class _SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.savings, size: 64, color: scheme.primary),
-            const SizedBox(height: 16),
-            const Text(
-              'Money Tracker',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        const AppBackground(),
+        Scaffold(
+          backgroundColor: Colors.transparent,
+          body: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.savings, size: 64, color: scheme.primary),
+                const SizedBox(height: 16),
+                const Text(
+                  'Money Tracker',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: 28),
+                const CircularProgressIndicator(),
+              ],
             ),
-            const SizedBox(height: 28),
-            const CircularProgressIndicator(),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 }

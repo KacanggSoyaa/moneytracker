@@ -7,6 +7,7 @@ import '../models/app_transaction.dart';
 import '../models/category.dart';
 import '../providers/app_state.dart';
 import '../utils/currency_formatter.dart';
+import '../widgets/app_background.dart';
 import '../widgets/category_avatar.dart';
 
 class TransactionFormScreen extends StatefulWidget {
@@ -154,18 +155,23 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
         : state.expenseCategories;
     final symbol = state.settings.currencySymbol;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_isEdit ? 'Edit transaction' : 'New transaction'),
-        actions: [
-          if (_isEdit)
-            IconButton(
-              onPressed: _delete,
-              icon: const Icon(Icons.delete_outline),
-              tooltip: 'Delete',
-            ),
-        ],
-      ),
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        const AppBackground(),
+        Scaffold(
+          backgroundColor: Colors.transparent,
+          appBar: AppBar(
+            title: Text(_isEdit ? 'Edit transaction' : 'New transaction'),
+            actions: [
+              if (_isEdit)
+                IconButton(
+                  onPressed: _delete,
+                  icon: const Icon(Icons.delete_outline),
+                  tooltip: 'Delete',
+                ),
+            ],
+          ),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(20),
@@ -296,6 +302,8 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
           ],
         ),
       ),
+      ),
+      ],
     );
   }
 }

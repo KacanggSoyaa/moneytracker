@@ -2,6 +2,31 @@
 
 A local-first expense & income tracker built with Flutter. All data stays on your device (SQLite) — no accounts, no cloud.
 
+**Repository:** https://github.com/KacanggSoyaa/moneytracker
+
+## Branch workflow
+
+- `main` — stable/release. Only merge tested work in here.
+- `develop` — where ongoing changes live.
+
+Model:
+```
+# make your changes while on develop
+git checkout develop          # if not already on it
+# ... edit code ...
+
+# push your updates
+git add -A
+git commit -m "describe the change"
+git push
+
+# when everything is tested, merge into main
+git checkout main
+git pull
+git merge develop
+git push
+```
+
 ## Features
 
 - **Home** — balance, month switcher, budget status, top categories, recent transactions

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../models/category.dart';
 import '../providers/app_state.dart';
+import '../widgets/app_background.dart';
 import '../widgets/category_avatar.dart';
 import 'category_form_screen.dart';
 
@@ -12,30 +13,37 @@ class CategoriesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final state = context.watch<AppState>();
-    return Scaffold(
-      appBar: AppBar(title: const Text('Categories')),
-      body: ListView(
-        padding: const EdgeInsets.only(bottom: 96),
-        children: [
-          _Section(
-            title: 'Income',
-            categories: state.incomeCategories,
-            onEdit: (c) => _openCategoryForm(context, c),
-            onDelete: (c) => _confirmDelete(context, state, c),
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        const AppBackground(),
+        Scaffold(
+          backgroundColor: Colors.transparent,
+          appBar: AppBar(title: const Text('Categories')),
+          body: ListView(
+            padding: const EdgeInsets.only(bottom: 96),
+            children: [
+              _Section(
+                title: 'Income',
+                categories: state.incomeCategories,
+                onEdit: (c) => _openCategoryForm(context, c),
+                onDelete: (c) => _confirmDelete(context, state, c),
+              ),
+              _Section(
+                title: 'Expense',
+                categories: state.expenseCategories,
+                onEdit: (c) => _openCategoryForm(context, c),
+                onDelete: (c) => _confirmDelete(context, state, c),
+              ),
+            ],
           ),
-          _Section(
-            title: 'Expense',
-            categories: state.expenseCategories,
-            onEdit: (c) => _openCategoryForm(context, c),
-            onDelete: (c) => _confirmDelete(context, state, c),
+          floatingActionButton: FloatingActionButton.extended(
+            onPressed: () => _openCategoryForm(context, null),
+            icon: const Icon(Icons.add),
+            label: const Text('New category'),
           ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _openCategoryForm(context, null),
-        icon: const Icon(Icons.add),
-        label: const Text('New category'),
-      ),
+        ),
+      ],
     );
   }
 }
