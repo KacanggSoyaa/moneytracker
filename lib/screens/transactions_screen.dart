@@ -7,6 +7,7 @@ import '../models/category.dart';
 import '../providers/app_state.dart';
 import '../utils/currency_formatter.dart';
 import '../widgets/empty_state.dart';
+import '../widgets/month_carousel.dart';
 import '../widgets/transaction_tile.dart';
 import 'transaction_form_screen.dart';
 
@@ -31,9 +32,12 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
 
     return Column(
       children: [
-        _MonthSelector(selected: state.selectedMonth),
+        MonthCarousel(
+          selected: state.selectedMonth,
+          onSelected: (m) => state.setMonth(m),
+        ),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
           child: Align(
             alignment: Alignment.centerLeft,
             child: SegmentedButton<TransactionType?>(
@@ -116,40 +120,6 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
       map.putIfAbsent(key, () => []).add(tx);
     }
     return map;
-  }
-}
-
-class _MonthSelector extends StatelessWidget {
-  final DateTime selected;
-
-  const _MonthSelector({required this.selected});
-
-  @override
-  Widget build(BuildContext context) {
-    final state = context.read<AppState>();
-    final label = DateFormat('MMMM yyyy').format(selected);
-    return Row(
-      children: [
-        IconButton(
-          onPressed: () =>
-              state.setMonth(DateTime(selected.year, selected.month - 1)),
-          icon: const Icon(Icons.chevron_left),
-        ),
-        Expanded(
-          child: Center(
-            child: Text(
-              label,
-              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-            ),
-          ),
-        ),
-        IconButton(
-          onPressed: () =>
-              state.setMonth(DateTime(selected.year, selected.month + 1)),
-          icon: const Icon(Icons.chevron_right),
-        ),
-      ],
-    );
   }
 }
 
