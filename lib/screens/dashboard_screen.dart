@@ -218,7 +218,7 @@ class _BalanceCard extends StatelessWidget {
                 Text(
                   'Balance',
                   style: TextStyle(
-                    color: scheme.onPrimary.withValues(alpha: 0.85),
+                    color: Colors.white,
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
                   ),
@@ -227,7 +227,7 @@ class _BalanceCard extends StatelessWidget {
                 Text(
                   '${balance < 0 ? '-' : ''}$symbol${CurrencyFormatter.formatCents(balance.abs(), '')}',
                   style: TextStyle(
-                    color: scheme.onPrimary,
+                    color: Colors.white,
                     fontSize: 30,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.5,
