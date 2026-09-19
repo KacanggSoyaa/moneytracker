@@ -412,17 +412,21 @@ class _CategoryRow extends StatelessWidget {
     final fraction = maxCents == 0 ? 0.0 : cents / maxCents;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
+                    child: Row(
         children: [
           CategoryAvatar(category: category),
           const SizedBox(width: 12),
-          Text(
-            category.name,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          Expanded(
+            child: Text(
+              category.name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+            ),
           ),
-          const Spacer(),
+          const SizedBox(width: 12),
           Text(
-            '${fraction * 100}%',
+            '${(fraction * 100).toStringAsFixed(0)}%',
             style: TextStyle(fontSize: 12.5, color: scheme.outline),
           ),
           const SizedBox(width: 24),

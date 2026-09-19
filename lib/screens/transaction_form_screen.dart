@@ -27,9 +27,9 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
   late TextEditingController _amountController;
   late TextEditingController _noteController;
 
-  bool _updating = false;
   bool _saving = false;
-  final _noteFocus = FocusNode();
+  late final FocusNode _amountFocus = FocusNode();
+  late final FocusNode _noteFocus = FocusNode();
 
   bool get _isEdit => widget.initial != null;
 
@@ -45,26 +45,36 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
       text: CurrencyFormatter.formatCents(_cents, ''),
     );
     _noteController = TextEditingController(text: initial?.note ?? '');
+    _amountFocus.addListener(_onAmountFocusChange);
   }
 
   @override
   void dispose() {
+    _amountFocus.removeListener(_onAmountFocusChange);
     _amountController.dispose();
     _noteController.dispose();
     _noteFocus.dispose();
+    _amountFocus.dispose();
     super.dispose();
   }
 
   void _onAmountChanged(String value) {
-    if (_updating) return;
-    final cents = CurrencyFormatter.parseCentsFromInput(value);
-    _cents = cents;
-    _updating = true;
+    _cents = CurrencyFormatter.parseCentsFromInput(value);
+    setState(() {});
+  }
+
+  void _onAmountFocusChange() {
+    if (_amountFocus.hasFocus) {
+      if (_amountController.text.isNotEmpty && _cents == 0) {
+        _amountController.text = '';
+      }
+      return;
+    }
+    final cents = _cents;
     _amountController.text = CurrencyFormatter.formatCents(cents, '');
     _amountController.selection = TextSelection.collapsed(
       offset: _amountController.text.length,
     );
-    _updating = false;
   }
 
   Future<void> _pickDate() async {
@@ -92,13 +102,15 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
     final note = _noteController.text.trim();
     try {
       if (_isEdit) {
-        await state.updateTransaction(widget.initial!.copyWith(
-          type: _type,
-          amountCents: _cents,
-          categoryId: _categoryId,
-          note: note,
-          date: _date,
-        ));
+        await state.updateTransaction(
+          widget.initial!.copyWith(
+            type: _type,
+            amountCents: _cents,
+            categoryId: _categoryId,
+            note: note,
+            date: _date,
+          ),
+        );
       } else {
         await state.addTransaction(
           type: _type,
@@ -172,137 +184,138 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
                 ),
             ],
           ),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(20),
-          children: [
-            SegmentedButton<TransactionType>(
-              segments: const [
-                ButtonSegment(
-                  value: TransactionType.expense,
-                  label: Text('Expense'),
-                  icon: Icon(Icons.arrow_upward),
-                ),
-                ButtonSegment(
-                  value: TransactionType.income,
-                  label: Text('Income'),
-                  icon: Icon(Icons.arrow_downward),
-                ),
-              ],
-              selected: {_type},
-              onSelectionChanged: (selection) {
-                setState(() {
-                  _type = selection.first;
-                  _categoryId = null;
-                });
-              },
-            ),
-            const SizedBox(height: 28),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+          body: SafeArea(
+            child: ListView(
+              padding: const EdgeInsets.all(20),
               children: [
-                Text(
-                  symbol,
-                  style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.w700,
-                    color: Theme.of(context).colorScheme.outline,
-                  ),
+                SegmentedButton<TransactionType>(
+                  segments: const [
+                    ButtonSegment(
+                      value: TransactionType.expense,
+                      label: Text('Expense'),
+                      icon: Icon(Icons.arrow_upward),
+                    ),
+                    ButtonSegment(
+                      value: TransactionType.income,
+                      label: Text('Income'),
+                      icon: Icon(Icons.arrow_downward),
+                    ),
+                  ],
+                  selected: {_type},
+                  onSelectionChanged: (selection) {
+                    setState(() {
+                      _type = selection.first;
+                      _categoryId = null;
+                    });
+                  },
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextField(
-                    controller: _amountController,
-                    onChanged: _onAmountChanged,
-                    autofocus: !_isEdit,
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
+                const SizedBox(height: 28),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      symbol,
+                      style: TextStyle(
+                        fontSize: 30,
+                        fontWeight: FontWeight.w700,
+                        color: Theme.of(context).colorScheme.outline,
+                      ),
                     ),
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(r'[\d.]')),
-                    ],
-                    style: const TextStyle(
-                      fontSize: 34,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.5,
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextField(
+                        controller: _amountController,
+                        focusNode: _amountFocus,
+                        onChanged: _onAmountChanged,
+                        autofocus: !_isEdit,
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r'[\d.]')),
+                        ],
+                        style: const TextStyle(
+                          fontSize: 34,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.5,
+                        ),
+                        decoration: const InputDecoration(
+                          hintText: '0.00',
+                          border: InputBorder.none,
+                          isDense: true,
+                        ),
+                      ),
                     ),
-                    decoration: const InputDecoration(
-                      hintText: '0.00',
-                      border: InputBorder.none,
-                      isDense: true,
+                  ],
+                ),
+                const SizedBox(height: 24),
+                const Text(
+                  'Category',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 10),
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: [
+                    for (final category in relevantCategories)
+                      _CategoryChoice(
+                        category: category,
+                        selected: _categoryId == category.id,
+                        onTap: () => setState(() => _categoryId = category.id),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.calendar_today_outlined),
+                  title: const Text('Date', style: TextStyle(fontSize: 15)),
+                  trailing: Text(
+                    DateFormat('EEE, d MMM yyyy').format(_date),
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
+                  onTap: _pickDate,
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: _noteController,
+                  focusNode: _noteFocus,
+                  textInputAction: TextInputAction.done,
+                  decoration: const InputDecoration(
+                    labelText: 'Note (optional)',
+                    hintText: 'e.g. Lunch with friends',
+                    prefixIcon: Icon(Icons.notes_outlined),
+                    border: OutlineInputBorder(),
+                  ),
+                  onSubmitted: (_) => _save(),
+                ),
+                const SizedBox(height: 32),
+                FilledButton(
+                  onPressed: _saving ? null : _save,
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    textStyle: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  child: _saving
+                      ? const SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(strokeWidth: 2.5),
+                        )
+                      : Text(_isEdit ? 'Save changes' : 'Add transaction'),
                 ),
               ],
             ),
-            const SizedBox(height: 24),
-            const Text(
-              'Category',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 10),
-            Wrap(
-              spacing: 10,
-              runSpacing: 10,
-              children: [
-                for (final category in relevantCategories)
-                  _CategoryChoice(
-                    category: category,
-                    selected: _categoryId == category.id,
-                    onTap: () => setState(() => _categoryId = category.id),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.calendar_today_outlined),
-              title: const Text('Date', style: TextStyle(fontSize: 15)),
-              trailing: Text(
-                DateFormat('EEE, d MMM yyyy').format(_date),
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-              ),
-              onTap: _pickDate,
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _noteController,
-              focusNode: _noteFocus,
-              textInputAction: TextInputAction.done,
-              decoration: const InputDecoration(
-                labelText: 'Note (optional)',
-                hintText: 'e.g. Lunch with friends',
-                prefixIcon: Icon(Icons.notes_outlined),
-                border: OutlineInputBorder(),
-              ),
-              onSubmitted: (_) => _save(),
-            ),
-            const SizedBox(height: 32),
-            FilledButton(
-              onPressed: _saving ? null : _save,
-              style: FilledButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                textStyle: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              child: _saving
-                  ? const SizedBox(
-                      width: 22,
-                      height: 22,
-                      child: CircularProgressIndicator(strokeWidth: 2.5),
-                    )
-                  : Text(_isEdit ? 'Save changes' : 'Add transaction'),
-            ),
-          ],
+          ),
         ),
-      ),
-      ),
       ],
     );
   }
