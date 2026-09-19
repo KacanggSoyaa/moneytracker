@@ -1,7 +1,6 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../models/category.dart';
@@ -10,6 +9,7 @@ import '../theme.dart';
 import '../utils/currency_formatter.dart';
 import '../widgets/category_avatar.dart';
 import '../widgets/empty_state.dart';
+import '../widgets/month_carousel.dart';
 import '../widgets/transaction_tile.dart';
 import 'transaction_form_screen.dart';
 
@@ -31,7 +31,10 @@ class DashboardScreen extends StatelessWidget {
       child: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
         children: [
-          _MonthSelector(selected: state.selectedMonth),
+          MonthCarousel(
+            selected: state.selectedMonth,
+            onSelected: (m) => state.setMonth(m),
+          ),
           const SizedBox(height: 12),
           _BalanceCard(state: state),
           const SizedBox(height: 16),
@@ -165,40 +168,6 @@ class _SectionHeader extends StatelessWidget {
         const Spacer(),
         ?trailing,
         ?action,
-      ],
-    );
-  }
-}
-
-class _MonthSelector extends StatelessWidget {
-  final DateTime selected;
-
-  const _MonthSelector({required this.selected});
-
-  @override
-  Widget build(BuildContext context) {
-    final state = context.read<AppState>();
-    final label = DateFormat('MMMM yyyy').format(selected);
-    return Row(
-      children: [
-        IconButton(
-          onPressed: () => state.setMonth(DateTime(selected.year, selected.month - 1)),
-          icon: const Icon(Icons.chevron_left),
-          tooltip: 'Previous month',
-        ),
-        Expanded(
-          child: Center(
-            child: Text(
-              label,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
-          ),
-        ),
-        IconButton(
-          onPressed: () => state.setMonth(DateTime(selected.year, selected.month + 1)),
-          icon: const Icon(Icons.chevron_right),
-          tooltip: 'Next month',
-        ),
       ],
     );
   }
@@ -443,17 +412,21 @@ class _CategoryRow extends StatelessWidget {
     final fraction = maxCents == 0 ? 0.0 : cents / maxCents;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
+                    child: Row(
         children: [
           CategoryAvatar(category: category),
           const SizedBox(width: 12),
-          Text(
-            category.name,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          Expanded(
+            child: Text(
+              category.name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+            ),
           ),
-          const Spacer(),
+          const SizedBox(width: 12),
           Text(
-            '${fraction * 100}%',
+            '${(fraction * 100).toStringAsFixed(0)}%',
             style: TextStyle(fontSize: 12.5, color: scheme.outline),
           ),
           const SizedBox(width: 24),
