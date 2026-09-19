@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/category.dart';
 import '../providers/app_state.dart';
 import '../utils/icon_lookup.dart';
+import '../widgets/app_background.dart';
 
 class CategoryFormScreen extends StatefulWidget {
   final Category? initial;
@@ -83,12 +84,17 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final icons = availableIcons();
-    return Scaffold(
-      appBar: AppBar(title: Text(_isEdit ? 'Edit category' : 'New category')),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(20),
-          children: [
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        const AppBackground(),
+        Scaffold(
+          backgroundColor: Colors.transparent,
+          appBar: AppBar(title: Text(_isEdit ? 'Edit category' : 'New category')),
+          body: SafeArea(
+            child: ListView(
+              padding: const EdgeInsets.all(20),
+              children: [
             TextField(
               controller: _nameController,
               textCapitalization: TextCapitalization.words,
@@ -205,6 +211,8 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
           ],
         ),
       ),
+      ),
+      ],
     );
   }
 

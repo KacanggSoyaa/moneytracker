@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -215,62 +217,89 @@ class _BalanceCard extends StatelessWidget {
     final expense = state.monthTotals[TransactionType.expense] ?? 0;
     final balance = income - expense;
     return Container(
-      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [scheme.primary, scheme.primary.withValues(alpha: 0.85)],
-        ),
         borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Balance',
-            style: TextStyle(
-              color: scheme.onPrimary.withValues(alpha: 0.85),
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            '${balance < 0 ? '-' : ''}$symbol${CurrencyFormatter.formatCents(balance.abs(), '')}',
-            style: TextStyle(
-              color: scheme.onPrimary,
-              fontSize: 30,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 0.5,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              _BalanceItem(
-                icon: Icons.arrow_downward,
-                iconColor: Colors.white,
-                label: 'Income',
-                value: CurrencyFormatter.formatCents(income, symbol),
-                valueColor: const Color(0xFFA6F1CC),
-              ),
-              Container(
-                width: 1,
-                height: 40,
-                margin: const EdgeInsets.symmetric(horizontal: 16),
-                color: scheme.onPrimary.withValues(alpha: 0.25),
-              ),
-              _BalanceItem(
-                icon: Icons.arrow_upward,
-                iconColor: Colors.white,
-                label: 'Expense',
-                value: CurrencyFormatter.formatCents(expense, symbol),
-                valueColor: const Color(0xFFFFB4B4),
-              ),
-            ],
+        boxShadow: [
+          BoxShadow(
+            color: scheme.primary.withValues(alpha: 0.40),
+            blurRadius: 26,
+            offset: const Offset(0, 10),
           ),
         ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  scheme.primary,
+                  scheme.primary.withValues(alpha: 0.88),
+                ],
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Balance',
+                  style: TextStyle(
+                    color: scheme.onPrimary.withValues(alpha: 0.85),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  '${balance < 0 ? '-' : ''}$symbol${CurrencyFormatter.formatCents(balance.abs(), '')}',
+                  style: TextStyle(
+                    color: scheme.onPrimary,
+                    fontSize: 30,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.5,
+                    shadows: [
+                      Shadow(
+                        color: Colors.black.withValues(alpha: 0.25),
+                        blurRadius: 18,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    _BalanceItem(
+                      icon: Icons.arrow_downward,
+                      iconColor: Colors.white,
+                      label: 'Income',
+                      value: CurrencyFormatter.formatCents(income, symbol),
+                      valueColor: const Color(0xFFA6F1CC),
+                    ),
+                    Container(
+                      width: 1,
+                      height: 40,
+                      margin: const EdgeInsets.symmetric(horizontal: 16),
+                      color: scheme.onPrimary.withValues(alpha: 0.25),
+                    ),
+                    _BalanceItem(
+                      icon: Icons.arrow_upward,
+                      iconColor: Colors.white,
+                      label: 'Expense',
+                      value: CurrencyFormatter.formatCents(expense, symbol),
+                      valueColor: const Color(0xFFFFB4B4),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
