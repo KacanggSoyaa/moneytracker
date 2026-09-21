@@ -104,7 +104,19 @@ class _ShellScreenState extends State<ShellScreen> {
             borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
-              child: NavigationBar(
+              child: Container(
+                decoration: isDark
+                    ? BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.white.withValues(alpha: 0.08),
+                            blurRadius: 22,
+                            spreadRadius: 1,
+                          ),
+                        ],
+                      )
+                    : null,
+                child: NavigationBar(
                 selectedIndex: _index,
                 onDestinationSelected: (i) => setState(() => _index = i),
                 backgroundColor: isDark
@@ -132,6 +144,7 @@ class _ShellScreenState extends State<ShellScreen> {
                     label: 'Settings',
                   ),
                 ],
+                ),
               ),
             ),
           ),

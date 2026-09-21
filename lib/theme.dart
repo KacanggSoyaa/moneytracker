@@ -40,19 +40,27 @@ abstract final class AppTheme {
           color: scheme.onSurface,
           fontSize: 20,
           fontWeight: FontWeight.w600,
+          shadows: isDark
+              ? [
+                  const Shadow(
+                    color: Color(0x80FFFFFF),
+                    blurRadius: 16,
+                  ),
+                ]
+              : null,
         ),
       ),
       cardTheme: CardThemeData(
-        elevation: 0,
+        elevation: isDark ? 6 : 0,
         shadowColor: isDark
-            ? Colors.black.withValues(alpha: 0.60)
+            ? Colors.white.withValues(alpha: 0.10)
             : scheme.primary.withValues(alpha: 0.16),
-        color: isDark ? const Color(0xE61E1E1E) : Colors.white,
+        color: isDark ? const Color(0xE61A1F2B) : Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
           side: BorderSide(
             color: isDark
-                ? Colors.white.withValues(alpha: 0.05)
+                ? Colors.white.withValues(alpha: 0.14)
                 : const Color(0xFFECEDEF),
           ),
         ),
