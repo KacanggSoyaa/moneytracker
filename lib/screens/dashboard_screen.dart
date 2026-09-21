@@ -62,24 +62,6 @@ class DashboardScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
           ],
-          if (state.monthTransactions.isNotEmpty) ...[
-            _SectionHeader(title: 'Top categories'),
-            const SizedBox(height: 4),
-            Card(
-              child: Column(
-                children: [
-                  for (final (category, cents) in _topCategories(state))
-                    _CategoryRow(
-                      category: category,
-                      cents: cents,
-                      maxCents: _topCategories(state).first.$2,
-                      symbol: state.settings.currencySymbol,
-                    ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-          ],
           _SectionHeader(
             title: 'Recent transactions',
             trailing: state.monthTransactions.length > 4
@@ -138,15 +120,6 @@ class DashboardScreen extends StatelessWidget {
     }
     result.sort((a, b) => b.$3.compareTo(a.$3));
     return result.take(4).toList();
-  }
-
-  List<(Category, int)> _topCategories(AppState state) {
-    final list = state.expenseCategories
-        .map((c) => (c, state.spentForCategory(c.id!)))
-        .where((e) => e.$2 > 0)
-        .toList()
-      ..sort((a, b) => b.$2.compareTo(a.$2));
-    return list.take(4).toList();
   }
 }
 
@@ -227,7 +200,7 @@ class _BalanceCard extends StatelessWidget {
                 Text(
                   '${balance < 0 ? '-' : ''}$symbol${CurrencyFormatter.formatCents(balance.abs(), '')}',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: Colors.white, 
                     fontSize: 30,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.5,
@@ -372,14 +345,29 @@ class _BudgetRow extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 8),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(6),
-                  child: LinearProgressIndicator(
-                    value: ratio,
-                    minHeight: 6,
-                    backgroundColor: scheme.surfaceContainerHighest,
-                    color: over ? AppTheme.expenseRed : scheme.primary,
-                  ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(6),
+                        child: LinearProgressIndicator(
+                          value: ratio,
+                          minHeight: 6,
+                          backgroundColor: scheme.surfaceContainerHighest,
+                          color: over ? AppTheme.expenseRed : scheme.primary,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '${(spent / planned * 100).toStringAsFixed(0)}%',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: over ? AppTheme.expenseRed : scheme.outline,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -391,55 +379,4 @@ class _BudgetRow extends StatelessWidget {
 
   String formatCentsShort(int cents, String symbol) =>
       cents >= 100000000 ? '$symbol${(cents / 100000000).toStringAsFixed(0)}M' : '$symbol${(cents / 100).toStringAsFixed(0)}';
-}
-
-class _CategoryRow extends StatelessWidget {
-  final Category category;
-  final int cents;
-  final int maxCents;
-  final String symbol;
-
-  const _CategoryRow({
-    required this.category,
-    required this.cents,
-    required this.maxCents,
-    required this.symbol,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final fraction = maxCents == 0 ? 0.0 : cents / maxCents;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    child: Row(
-        children: [
-          CategoryAvatar(category: category),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              category.name,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Text(
-            '${(fraction * 100).toStringAsFixed(0)}%',
-            style: TextStyle(fontSize: 12.5, color: scheme.outline),
-          ),
-          const SizedBox(width: 24),
-          SizedBox(
-            width: 110,
-            child: Text(
-              CurrencyFormatter.formatCents(cents, symbol),
-              textAlign: TextAlign.right,
-              style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }

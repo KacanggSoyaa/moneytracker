@@ -232,6 +232,18 @@ class _OverviewTab extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Top categories',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
                   for (final (category, cents) in _sortedExpenseCategories(state))
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 6),

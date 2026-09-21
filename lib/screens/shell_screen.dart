@@ -42,7 +42,27 @@ class _ShellScreenState extends State<ShellScreen> {
         Scaffold(
           backgroundColor: Colors.transparent,
           appBar: AppBar(title: Text(_titles[_index])),
-          body: body,
+          body: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 280),
+            switchInCurve: Curves.easeOutCubic,
+            switchOutCurve: Curves.easeInCubic,
+            transitionBuilder: (child, animation) {
+              return FadeTransition(
+                opacity: animation,
+                child: SlideTransition(
+                  position: Tween<Offset>(
+                    begin: const Offset(0.06, 0),
+                    end: Offset.zero,
+                  ).animate(animation),
+                  child: child,
+                ),
+              );
+            },
+            child: KeyedSubtree(
+              key: ValueKey(_index),
+              child: body,
+            ),
+          ),
           floatingActionButton: _index <= 1
               ? Container(
                   decoration: BoxDecoration(
